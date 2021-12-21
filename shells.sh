@@ -1,4 +1,3 @@
-
 #!/bin/bash
 
 comp_read=$1
@@ -45,4 +44,3 @@ then
 	echo "Please type valid entry in bid"	
 fi
 cat $filename
-
