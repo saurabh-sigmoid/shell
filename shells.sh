@@ -1,46 +1,51 @@
 #!/bin/bash
 
-comp_read=$1
-view_read=$2
-scale_read=$3
+first_co=$1
+second_re=$2
+value_scale=$3
 COUNT=$4
-filename=$5
+file=$5
 
-funcBid () {
-        LineNumber=$( cat $filename | grep -i -n  "$comp_read" | grep -i -n -v "$VAR" | awk -F ":" '{print $2}' )
-    conf=$( cat $filename | grep -i  "$comp_read" | grep -i -v "$VAR"  )
-    SCALE=$( echo $conf | awk -F ';' '{print $2}')
-    SELECT_COUNT=$( echo $conf | awk -F '=' '{print $2}')
-    new_conf=$( echo $conf | sed  "s/$SCALE/$scale_read/g"  )
+Bidfn () { 
+	LineNumber=$( cat $file | grep -i -n "$first_co" | grep -i -n "$VAR" | awk -F ":" '{print $2}' ) # conf
+        if [[ $LineNumber -ne "NULL" ]]
+        then
 
-    new_conf2=$( echo $new_conf | sed  "s/$SELECT_COUNT/$COUNT/g"  )
-    sed -i "s/$conf/$new_conf2/g" $filename
+                conf=$( cat $file | grep -i  "$first_co" | grep -i  "$VAR"  )
+                SCALE=$( echo $conf | awk -F ';' '{print $2}')
+                SELECT_COUNT=$( echo $conf | awk -F '=' '{print $2}')
+                new_conf=$( echo $conf | sed  "s/$SCALE/$value_scale/g"  )
+                new_conf2=$( echo $new_conf | sed  "s/$SELECT_COUNT/$COUNT/g"  )
+                sed -i "s/$conf/$new_conf2/g" $file
+        else
+                echo "Invalid bid entry."
+        fi
+
 }
 
-funcAuction () {
-         LineNumber=$( cat $filename | grep -i -n "$comp_read" | grep -i -n "$VAR" | awk -F ":" '{print $2}' ) # conf
-         conf=$( cat $filename | grep -i  "$comp_read" | grep -i  "$VAR"  )
-         SCALE=$( echo $conf | awk -F ';' '{print $2}')
-         SELECT_COUNT=$( echo $conf | awk -F '=' '{print $2}')
-         new_conf=$( echo $conf | sed  "s/$SCALE/$scale_read/g"  )
 
-         new_conf2=$( echo $new_conf | sed  "s/$SELECT_COUNT/$COUNT/g"  )
-         sed -i "s/$conf/$new_conf2/g" $filename
-	 echo "has been updated $LineNumber : $SELECT_COUNT"
+Auctionfn () {
+	
+	LineNumber=$( cat $file | grep -i -n  "$first_co" | grep -i -n -v "$VAR" | awk -F ":" '{print $2}' ) 
+    	conf=$( cat $file | grep -i  "$first_co" | grep -i -v "$VAR"  )
+    	SCALE=$( echo $conf | awk -F ';' '{print $2}')                            
+    	SELECT_COUNT=$( echo $conf | awk -F '=' '{print $2}')         
+    	new_conf=$( echo $conf | sed  "s/$SCALE/$value_scale/g"  )
+
+    	new_conf2=$( echo $new_conf | sed  "s/$SELECT_COUNT/$COUNT/g"  )
+    	sed -i "s/$conf/$new_conf2/g" $file
+
 }
 
 
 VAR="bid"
-if [[ "$view_read" =~ "Auction" ]]
+if [[ "$second_re" =~ "Auction" ]]
 then
-	funcAuction	
-elif [[ ! "Auction" == "true" ]]
+        Auctionfn
+elif [[ "$second_re" =~ "bid" ]]
 then
-	echo "please type valid entry in auction"
-else
-	funcBid
-elif [[ ! $VAR == "true" ]]
-then
-	echo "Please type valid entry in bid"	
+        Bidfn
+else    
+        echo "Please type valid entry." 
 fi
-cat $filename
+cat $file
